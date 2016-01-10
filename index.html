@@ -1,6 +1,10 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="icon" sizes="16x16" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <title>Uptimegraph3</title>
     <script src="/flot/jquery.min.js"></script>
     <script src="/flot/jquery.flot.min.js"></script>
@@ -12,7 +16,11 @@ body { background: #F0F0F0; margin: 0; padding: 0; }
 
 #chart { box-sizing: border-box; width: 100vw; height: 350px; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.56); margin: 0; padding: 0; }
 
+#chart .notfound { text-align: center; padding-top: 100px; }
+
 #chart-ctrl { box-sizing: border-box; width: 100vw; background: gray; padding: 16px; margin: 0; color: white; }
+
+#chart-ctrl .appname { font-family: sans-serif; color: white; text-decoration: none; margin-right: 16px; }
 
 #clearSelection { float: right; }
 
@@ -100,7 +108,7 @@ function show_period( period ) {
     var plot = $.plot(placeholder, data, options);
   })
   .fail(function( jqXHR, textStatus, errorThrown ) {
-    placeholder.html('<div style="text-align:center;margin-top:100px;">Not found.</div>');
+    placeholder.html('<div class="notfound">Not found.</div>');
   });
 }
 
@@ -108,7 +116,7 @@ function show_period( period ) {
   </head>
   <body>
     <div id="chart-ctrl">
-      <span class="appname">Uptimegraph3</span>
+      <a class="appname" href="/">Uptimegraph3</a>
       <select name="period">
         <option value="2016-01">Jan 2016</option>
         <option value="2015-12">Dec 2015</option>
