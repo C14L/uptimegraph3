@@ -1,0 +1,131 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Uptimegraph3</title>
+    <script src="/flot/jquery.min.js"></script>
+    <script src="/flot/jquery.flot.min.js"></script>
+    <script src="/flot/jquery.flot.time.js"></script>
+    <script src="/flot/jquery.flot.selection.js"></script>
+    <style>
+
+body { background: #F0F0F0; margin: 0; padding: 0; }
+
+#chart { box-sizing: border-box; width: 100vw; height: 350px; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.56); margin: 0; padding: 0; }
+
+#chart-ctrl { box-sizing: border-box; width: 100vw; background: gray; padding: 16px; margin: 0; color: white; }
+
+#clearSelection { float: right; }
+
+    </style>
+    <script>
+
+$(document).ready(function(){
+  var now = new Date();
+  var mon = ('0' + (now.getMonth() + 1)).slice(-2);
+  var year = now.getFullYear();
+  var period = year + '-' + mon;
+  show_period(period);
+
+  $('#chart-ctrl select[name="period"]').on('change', function(ev){
+    show_period(this.value);
+  });
+});
+
+function get_max_days( period ) {
+    var mon = parseInt(period.split("-")[1]);
+    return [null, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mon];
+}
+
+function show_period( period ) {
+  var data_url = 'http://up.yaix.de/data/' + period + '.txt';
+  var placeholder = $('#chart');
+
+  $.get(data_url, {}, function(response) {
+    var lines = response.split(/\n/);
+
+    var data = [{label:  '1 min', data: []},
+                {label:  '5 min', data: []},
+                {label: '15 min', data: []}];
+
+    for ( var i=0; i<lines.length; i++ ) {
+      var item = lines[i].split(/\s/);
+      var timestamp = (1000 * parseInt(item[0], 10)) || null;
+      data[0].data.push( [ timestamp, parseInt( item[1] * 100 ) ] );
+      data[1].data.push( [ timestamp, parseInt( item[2] * 100 ) ] );
+      data[2].data.push( [ timestamp, parseInt( item[3] * 100 ) ] );
+    }
+
+    var p_min = new Date(period + "-01T00:00").getTime(),
+        p_max = new Date(period + "-" + get_max_days(period) + "T23:59").getTime();
+
+    var options = {
+      xaxis: {
+        mode: "time",
+        timeformat: "%Y-%m-%d %H:%M",
+        min: p_min,
+        max: p_max,
+      },
+      yaxis: {
+      },
+      selection: {
+        mode: "x"
+      },
+    };
+
+    placeholder.bind("plotselected", function (event, ranges) {
+      $.each(plot.getXAxes(), function(_, axis) {
+        var opts = axis.options;
+        opts.min = ranges.xaxis.from;
+        opts.max = ranges.xaxis.to;
+      });
+      plot.setupGrid();
+      plot.draw();
+      plot.clearSelection();
+    });
+
+    placeholder.bind("plotunselected", function (event) {
+    });
+
+    $("#clearSelection").click(function () {
+      $.each(plot.getXAxes(), function(_, axis) {
+        var opts = axis.options;
+        opts.min = null;
+        opts.max = null;
+      });
+      plot.setupGrid();
+      plot.draw();
+      plot.clearSelection();
+    });
+
+    var plot = $.plot(placeholder, data, options);
+  })
+  .fail(function( jqXHR, textStatus, errorThrown ) {
+    placeholder.html('<div style="text-align:center;margin-top:100px;">Not found.</div>');
+  });
+}
+
+    </script>
+  </head>
+  <body>
+    <div id="chart-ctrl">
+      <span class="appname">Uptimegraph3</span>
+      <select name="period">
+        <option value="2016-01">Jan 2016</option>
+        <option value="2015-12">Dec 2015</option>
+        <option value="2015-11">Nov 2015</option>
+        <option value="2015-10">Oct 2015</option>
+        <option value="2015-09">Sep 2015</option>
+        <option value="2015-08">Aug 2015</option>
+        <option value="2015-07">Jul 2015</option>
+        <option value="2015-06">Jun 2015</option>
+        <option value="2015-05">May 2015</option>
+        <option value="2015-04">Apr 2015</option>
+        <option value="2015-03">Mar 2015</option>
+        <option value="2015-02">Feb 2015</option>
+        <option value="2015-01">Jan 2015</option>
+      </select>
+      <button id="clearSelection">zoom reset</button>
+    </div>
+    <div id="chart"></div>
+  </body>
+</html>
