@@ -26,22 +26,39 @@ body { background: #F0F0F0; margin: 0; padding: 0; }
 
     </style>
     <script>
+Date.prototype.getWeek = function() {
+  // http://stackoverflow.com/a/7765814/5520354
+  var onejan = new Date(this.getFullYear(), 0, 1);
+  return Math.ceil((((this-onejan)/86400000)+onejan.getDay()+1)/7);
+}
 
 $(document).ready(function(){
+  var startYear = 2016, 
+      startWeek = 1;
   var now = new Date();
-  var mon = ('0' + (now.getMonth() + 1)).slice(-2);
+  //var mon = ('0' + (now.getMonth() + 1)).slice(-2);
+  var week = ('0' + now.getWeek()).slice(-2);
   var year = now.getFullYear();
-  var period = year + '-' + mon;
-  show_period(period);
+  var period = year + '-' + ('0' + week).slice(-2);
 
+  var oWeekSelect = $('#week-select');
+  oWeekSelect.html('');
+  for(y=startYear; y<=year; y++){
+    for(w=startWeek; (y<year||w<=week); w++){
+      oWeekSelect.append('<option value="' + y + '-' + ('0' + w).slice(-2) + '">' + y + ', week ' + w + '</option>');
+    }
+  }
+
+  show_period($('#chart-ctrl select[name="period"]').value);
   $('#chart-ctrl select[name="period"]').on('change', function(ev){
     show_period(this.value);
   });
 });
 
 function get_max_days( period ) {
-    var mon = parseInt(period.split("-")[1]);
-    return [null, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mon];
+    //var mon = parseInt(period.split("-")[1]);
+    //return [null, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mon];
+    return 7;
 }
 
 function show_period( period ) {
@@ -70,8 +87,8 @@ function show_period( period ) {
       xaxis: {
         mode: "time",
         timeformat: "%Y-%m-%d %H:%M",
-        min: p_min,
-        max: p_max,
+        //min: p_min,
+        //max: p_max,
       },
       yaxis: {
       },
@@ -117,20 +134,11 @@ function show_period( period ) {
   <body>
     <div id="chart-ctrl">
       <a class="appname" href="/">Uptimegraph3</a>
-      <select name="period">
-        <option value="2016-01">Jan 2016</option>
-        <option value="2015-12">Dec 2015</option>
-        <option value="2015-11">Nov 2015</option>
-        <option value="2015-10">Oct 2015</option>
-        <option value="2015-09">Sep 2015</option>
-        <option value="2015-08">Aug 2015</option>
-        <option value="2015-07">Jul 2015</option>
-        <option value="2015-06">Jun 2015</option>
-        <option value="2015-05">May 2015</option>
-        <option value="2015-04">Apr 2015</option>
-        <option value="2015-03">Mar 2015</option>
-        <option value="2015-02">Feb 2015</option>
-        <option value="2015-01">Jan 2015</option>
+      <select name="period" id="week-select">
+        <option value="2016-04">2016, week 4</option>
+        <option value="2016-03">2016, week 3</option>
+        <option value="2016-02">2016, week 2</option>
+        <option value="2016-01">2016, week 1</option>
       </select>
       <button id="clearSelection">zoom reset</button>
     </div>
