@@ -6,10 +6,11 @@
     <link rel="icon" sizes="16x16" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.ico">
     <title>Uptimegraph3</title>
-    <script src="/flot/jquery.min.js"></script>
-    <script src="/flot/jquery.flot.min.js"></script>
-    <script src="/flot/jquery.flot.time.js"></script>
-    <script src="/flot/jquery.flot.selection.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.selection.min.js"></script>
     <style>
 
 body { background: #F0F0F0; margin: 0; padding: 0; }
@@ -27,30 +28,33 @@ body { background: #F0F0F0; margin: 0; padding: 0; }
     </style>
     <script>
 Date.prototype.getWeek = function() {
-  // http://stackoverflow.com/a/7765814/5520354
-  var onejan = new Date(this.getFullYear(), 0, 1);
-  return Math.ceil((((this-onejan)/86400000)+onejan.getDay()+1)/7);
+  return moment(this).isoWeek();
 }
 
 $(document).ready(function(){
   var startYear = 2016, 
       startWeek = 1;
   var now = new Date();
-  //var mon = ('0' + (now.getMonth() + 1)).slice(-2);
-  var week = ('0' + now.getWeek()).slice(-2);
+  var week = now.getWeek();
   var year = now.getFullYear();
   var period = year + '-' + ('0' + week).slice(-2);
-
+  // selected week/year. TODO: use to set vals as URL #hash
+  var selWeek = week; // for now, use today's values.
+  var selYear = year; 
   var oWeekSelect = $('#week-select');
   oWeekSelect.html('');
-  for(y=startYear; y<=year; y++){
-    for(w=startWeek; (y<year||w<=week); w++){
-      oWeekSelect.append('<option value="' + y + '-' + ('0' + w).slice(-2) + '">' + y + ', week ' + w + '</option>');
+
+  for( y = startYear; y <= year; y++ ) {
+    for( w = startWeek; ( y < year || w <= week ); w++ ) {
+      var sel = ( selYear == y && selWeek == w )?' selected="selected" ':'';
+      var val = y+'-'+('0' + w).slice(-2);
+      var s = '<option '+sel+' value="'+val+'">'+y+', W'+w+'</option>';
+      oWeekSelect.append(s);
     }
   }
 
-  show_period($('#chart-ctrl select[name="period"]').value);
-  $('#chart-ctrl select[name="period"]').on('change', function(ev){
+  show_period(oWeekSelect.val());
+  $('#week-select').on('change', function(ev){
     show_period(this.value);
   });
 });
