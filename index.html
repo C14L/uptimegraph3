@@ -3,8 +3,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <link rel="icon" sizes="16x16" href="/favicon.png">
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" sizes="16x16" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.ico">
     <title>Uptimegraph3</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
@@ -66,7 +66,7 @@ function get_max_days( period ) {
 }
 
 function show_period( period ) {
-  var data_url = 'http://up.yaix.de/data/' + period + '.txt';
+  var data_url = 'data/' + period + '.txt';
   var placeholder = $('#chart');
 
   $.get(data_url, {}, function(response) {
