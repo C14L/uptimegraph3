@@ -11,5 +11,6 @@ echo "`date +%s` `uptime | grep -ohe 'load average[s:][: ].*' | cut -d' ' -f3,4,
 
 # Collect "mailq" stats: Number of items in the mailq.
 #
-echo "`date +%s` `mailq | grep -P "^[0-9A-F]{10}\s{2,}" | wc -l`" >> $MAILQ_FILE
+echo "`date +%s` `mailq | grep -P '^[0-9A-F]{10}\s{2,}' | wc -l`" >> $MAILQ_FILE
+
 
