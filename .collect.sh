@@ -22,7 +22,7 @@ echo "`date +%s` `mailq | grep -P '^[0-9A-F]{10}\s{2,}' | wc -l`" >> $MAILQ_FILE
 MON=$(date +%b)
 DAY=$(date +%e)
 HOU=$(date +%H)
-MIN=$(($(date +%M)-1))
+MIN=$(($(date +%M | sed 's/^0//')-1))
 if [ $MIN == '-1' ]; then HOU=$(($HOU-1)); MIN='59'; fi
 if [ $HOU == '-1' ]; then DAY=$(($DAY-1)); HOU='23'; fi
 #
