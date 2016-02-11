@@ -8,7 +8,7 @@ Upload to a public directory on your server and setup a cronjob to run `.collect
 
 - `data/YYYY-WW.txt` uptime 1, 5, 15 min load.
 - `data/mailq-YYYY-WW.txt`  open items in mailq.
-- `data/mailsent-YYYY-WW.txt`  email sent over the past minute.
+- `data/mailsent-YYYY-WW.txt`  email sent over the past minute (no graph yet).
 
 (YYYY == year, WW == week number)
 
