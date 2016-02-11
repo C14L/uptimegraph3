@@ -8,4 +8,4 @@ Upload to a public directory on your server and setup a cronjob to run `.collect
 
 Open `index.html` in a browser to see the `load average` values over a month as a graph.
 
-<img src="http://imgur.com/w8yleGu">
+![Screenshot](http://imgur.com/w8yleGu)
