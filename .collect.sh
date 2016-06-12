@@ -5,6 +5,8 @@ DATA_DIR="$SCRIPT_DIR/data"
 DATA_FILE="$DATA_DIR/`date --utc +%Y`-`date --utc +%V`.txt"
 MAILQ_FILE="$DATA_DIR/mailq-`date --utc +%Y`-`date --utc +%V`.txt"
 SENT_FILE="$DATA_DIR/mailsent-`date --utc +%Y`-`date --utc +%V`.txt"
+RECV_FILE="$DATA_DIR/mailrecv-`date --utc +%Y`-`date --utc +%V`.txt"
+MEM_FILE="$DATA_DIR/mem-`date --utc +%Y`-`date --utc +%V`.txt"
 
 ###
 # Collect "uptime" stats: 1m 5m 15m avrg load.
@@ -30,3 +32,21 @@ if [ $HOU == '-1' ]; then DAY=$(($DAY-1)); HOU='23'; fi
 #
 echo "`date +%s` `cat /var/log/mail.log | grep -P "$MON\s+$DAY\s+$HOU:$MIN:" | grep 'status=sent' | wc -l`" >> $SENT_FILE
 
+###
+# Collect number of emails received in INBOX files during the past minute.
+###
+MON=$(date +%b)
+DAY=$(date +%e)
+HOU=$(date +%H)
+MIN=$(($(date +%M | sed 's/^0//')-1))
+if [ $MIN == '-1' ]; then HOU=$(($HOU-1)); MIN='59'; fi
+if [ $HOU == '-1' ]; then DAY=$(($DAY-1)); HOU='23'; fi
+#
+# This leaves a gap for the last minute of every month. That's okay.
+#
+echo "`date +%s` `cat /var/log/dovecot.log | grep -P "$MON\s+$DAY\s+$HOU:$MIN:" | grep ': saved mail to INBOX' | wc -l`" >> $RECV_FILE
+
+###
+# Collect memory stats "total used free" in MiB
+###
+echo "`date +%s` `free -m | grep Mem | awk '{print $2,$3,$4}'`" >> $MEM_FILE
