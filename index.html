@@ -13,19 +13,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.selection.min.js"></script>
     <style>
 
-body { background: #F0F0F0; margin: 0; padding: 0; }
+html { box-sizing: border-box; } *, *:before, *:after { box-sizing: inherit; }
 
-#chart { box-sizing: border-box; width: 100vw; height: 350px; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.56); margin: 0; padding: 0; }
+body { background: #F0F0F0; margin: 0; padding: 0; padding-top: 48px; }
 
-#mailqChart { box-sizing: border-box; width: 100vw; height: 150px; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.56); margin: 0; padding: 0; }
+.chart { width: 100vw; max-width: 1280px; height: 250px; margin: 10px auto; padding: 10px; background: white; box-shadow: 0 0 8px rgba(0,0,0,0.56); overflow: hidden; }
 
-#chart .notfound { text-align: center; padding-top: 100px; }
+.chart > div { width: 100%; height: 100%; background: white; }
 
-#chart-ctrl { box-sizing: border-box; width: 100vw; background: gray; padding: 16px; margin: 0; color: white; }
+.chart.avgload { height: 350px; }
 
-#chart-ctrl .appname { font-family: sans-serif; color: white; text-decoration: none; margin-right: 16px; }
+.chart > div .notfound { text-align: center; padding-top: 100px; }
 
-#clearSelection { float: right; }
+.chart-ctrl { position: fixed; top: 0; left: 0; right: 0; background: gray; padding: 16px; margin: 0; color: white; opacity: 0.9; z-index: 1000; }
+
+.chart-ctrl .appname { font-family: sans-serif; color: white; text-decoration: none; margin-right: 16px; }
+
+.clear { float: right; }
 
     </style>
     <script>
@@ -74,9 +78,17 @@ function show_period( period ) {
   var mailq_data_url = 'data/mailq-' + period + '.txt';
   var mailq_placeholder = $('#mailqChart');
 
-  var mem_data_url = 'data/mailq-' + period + '.txt';
+  var mailsent_data_url = 'data/mailsent-' + period + '.txt';
+  var mailsent_placeholder = $('#mailSent');
+
+  var mailrecv_data_url = 'data/mailrecv-' + period + '.txt';
+  var mailrecv_placeholder = $('#mailRecv');
+
+  var mem_data_url = 'data/mem-' + period + '.txt';
   var mem_placeholder = $('#memChart');
-  
+
+
+
   // Uptime server load //////////////////////////////////////////////////////
 
   $.get(data_url, {}, function(response) {
@@ -142,12 +154,14 @@ function show_period( period ) {
     placeholder.html('<div class="notfound">Not found.</div>');
   });
 
+
+
   // mailq graph ////////////////////////////////////////////////////////
 
   $.get(mailq_data_url, {}, function(response) {
     var lines = response.split(/\n/);
 
-    var data = [{label:  'mail count', data: []}, ];
+    var data = [{label:  'mail queue', data: []}, ];
 
     for ( var i=0; i<lines.length; i++ ) {
       var item = lines[i].split(/\s/);
@@ -204,9 +218,142 @@ function show_period( period ) {
   .fail(function( jqXHR, textStatus, errorThrown ) {
     mailq_placeholder.html('<div class="notfound">Not found.</div>');
   });
-  
+
+
+
+  // mailsent graph ////////////////////////////////////////////////////////
+
+  $.get(mailsent_data_url, {}, function(response) {
+    var lines = response.split(/\n/);
+
+    var data = [{label:  'mails sent', data: []}, ];
+
+    for ( var i=0; i<lines.length; i++ ) {
+      var item = lines[i].split(/\s/);
+      var timestamp = (1000 * parseInt(item[0], 10)) || null;
+      data[0].data.push( [ timestamp, parseInt( item[1] * 1 ) ] );
+    }
+
+    var p_min = new Date(period + "-01T00:00").getTime(),
+        p_max = new Date(period + "-" + get_max_days(period) + "T23:59").getTime();
+
+    var options = {
+      xaxis: {
+        mode: "time",
+        timeformat: "%Y-%m-%d %H:%M",
+        //min: p_min,
+        //max: p_max,
+      },
+      yaxis: {
+        min: 0,
+        //max: p_max,
+      },
+      selection: {
+        mode: "x"
+      },
+    };
+
+    mailsent_placeholder.bind("plotselected", function (event, ranges) {
+      $.each(plot.getXAxes(), function(_, axis) {
+        var opts = axis.options;
+        opts.min = ranges.xaxis.from;
+        opts.max = ranges.xaxis.to;
+      });
+      plot.setupGrid();
+      plot.draw();
+      plot.clearSelection();
+    });
+
+    mailsent_placeholder.bind("plotunselected", function (event) {
+    });
+
+    $("#clearSelection").click(function () {
+      $.each(plot.getXAxes(), function(_, axis) {
+        var opts = axis.options;
+        opts.min = null;
+        opts.max = null;
+      });
+      plot.setupGrid();
+      plot.draw();
+      plot.clearSelection();
+    });
+
+    var plot = $.plot(mailsent_placeholder, data, options);
+  })
+  .fail(function( jqXHR, textStatus, errorThrown ) {
+    mailsent_placeholder.html('<div class="notfound">Not found.</div>');
+  });
+
+
+
+
+  // mailsent graph ////////////////////////////////////////////////////////
+
+  $.get(mailrecv_data_url, {}, function(response) {
+    var lines = response.split(/\n/);
+
+    var data = [{label:  'mails received', data: []}, ];
+
+    for ( var i=0; i<lines.length; i++ ) {
+      var item = lines[i].split(/\s/);
+      var timestamp = (1000 * parseInt(item[0], 10)) || null;
+      data[0].data.push( [ timestamp, parseInt( item[1] * 1 ) ] );
+    }
+
+    var p_min = new Date(period + "-01T00:00").getTime(),
+        p_max = new Date(period + "-" + get_max_days(period) + "T23:59").getTime();
+
+    var options = {
+      xaxis: {
+        mode: "time",
+        timeformat: "%Y-%m-%d %H:%M",
+        //min: p_min,
+        //max: p_max,
+      },
+      yaxis: {
+        min: 0,
+        //max: p_max,
+      },
+      selection: {
+        mode: "x"
+      },
+    };
+
+    mailrecv_placeholder.bind("plotselected", function (event, ranges) {
+      $.each(plot.getXAxes(), function(_, axis) {
+        var opts = axis.options;
+        opts.min = ranges.xaxis.from;
+        opts.max = ranges.xaxis.to;
+      });
+      plot.setupGrid();
+      plot.draw();
+      plot.clearSelection();
+    });
+
+    mailrecv_placeholder.bind("plotunselected", function (event) {
+    });
+
+    $("#clearSelection").click(function () {
+      $.each(plot.getXAxes(), function(_, axis) {
+        var opts = axis.options;
+        opts.min = null;
+        opts.max = null;
+      });
+      plot.setupGrid();
+      plot.draw();
+      plot.clearSelection();
+    });
+
+    var plot = $.plot(mailrecv_placeholder, data, options);
+  })
+  .fail(function( jqXHR, textStatus, errorThrown ) {
+    mailrecv_placeholder.html('<div class="notfound">Not found.</div>');
+  });
+
+
+
   // mem graph (8192 1899 6292) /////////////////////////////////////////////
-/*
+
   $.get(mem_data_url, {}, function(response) {
     var lines = response.split(/\n/);
 
@@ -217,15 +364,9 @@ function show_period( period ) {
     for ( var i=0; i<lines.length; i++ ) {
       var item = lines[i].split(/\s/);
       var timestamp = (1000 * parseInt(item[0], 10)) || null;
-      data[0].data.push( [ timestamp, parseInt( item[1] * 100 ) ] );
-      data[1].data.push( [ timestamp, parseInt( item[2] * 100 ) ] );
-      data[2].data.push( [ timestamp, parseInt( item[3] * 100 ) ] );
-    }
-
-    for ( var i=0; i<lines.length; i++ ) {
-      var item = lines[i].split(/\s/);
-      var timestamp = (1000 * parseInt(item[0], 10)) || null;
       data[0].data.push( [ timestamp, parseInt( item[1] * 1 ) ] );
+      data[1].data.push( [ timestamp, parseInt( item[2] * 1 ) ] );
+      data[2].data.push( [ timestamp, parseInt( item[3] * 1 ) ] );
     }
 
     var p_min = new Date(period + "-01T00:00").getTime(),
@@ -247,7 +388,7 @@ function show_period( period ) {
       },
     };
 
-    mailq_placeholder.bind("plotselected", function (event, ranges) {
+    mem_placeholder.bind("plotselected", function (event, ranges) {
       $.each(plot.getXAxes(), function(_, axis) {
         var opts = axis.options;
         opts.min = ranges.xaxis.from;
@@ -258,7 +399,7 @@ function show_period( period ) {
       plot.clearSelection();
     });
 
-    mailq_placeholder.bind("plotunselected", function (event) {
+    mem_placeholder.bind("plotunselected", function (event) {
     });
 
     $("#clearSelection").click(function () {
@@ -272,18 +413,18 @@ function show_period( period ) {
       plot.clearSelection();
     });
 
-    var plot = $.plot(mailq_placeholder, data, options);
+    var plot = $.plot(mem_placeholder, data, options);
   })
   .fail(function( jqXHR, textStatus, errorThrown ) {
-    mailq_placeholder.html('<div class="notfound">Not found.</div>');
+    mem_placeholder.html('<div class="notfound">Not found.</div>');
   });
-*/
+
 }
 
     </script>
   </head>
   <body>
-    <div id="chart-ctrl">
+    <div class="chart-ctrl" id="chart-ctrl">
       <a class="appname" href="/up/">Uptimegraph3</a>
       <select name="period" id="week-select">
         <option value="2016-04">2016, week 4</option>
@@ -291,10 +432,12 @@ function show_period( period ) {
         <option value="2016-02">2016, week 2</option>
         <option value="2016-01">2016, week 1</option>
       </select>
-      <button id="clearSelection">zoom reset</button>
+      <button class="clear" id="clearSelection">zoom reset</button>
     </div>
-    <div class="chart" id="chart"></div>
-    <div class="chart" id="mailqChart"></div>
-    <div class="chart" id="memChart"></div>
+    <div class="chart avgload"><div id="chart"></div></div>
+    <div class="chart mem"><div id="memChart"></div></div>
+    <div class="chart mailq"><div id="mailqChart"></div></div>
+    <div class="chart mailsent"><div id="mailSent"></div></div>
+    <div class="chart mailrecv"><div id="mailRecv"></div></div>
   </body>
 </html>
