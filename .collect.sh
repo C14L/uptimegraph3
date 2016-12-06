@@ -2,7 +2,11 @@
 
 SCRIPT_DIR=$( cd $(dirname $0) ; pwd -P )
 DATA_DIR="$SCRIPT_DIR/data"
+
 DATA_FILE="$DATA_DIR/`date --utc +%Y`-`date --utc +%V`.txt"
+MPSTAT_ALL_FILE="$DATA_DIR/mpstat-all-`date --utc +%Y`-`date --utc +%V`.txt"
+MPSTAT_P0_FILE="$DATA_DIR/mpstat-p0-`date --utc +%Y`-`date --utc +%V`.txt"
+MPSTAT_P1_FILE="$DATA_DIR/mpstat-p1-`date --utc +%Y`-`date --utc +%V`.txt"
 MAILQ_FILE="$DATA_DIR/mailq-`date --utc +%Y`-`date --utc +%V`.txt"
 SENT_FILE="$DATA_DIR/mailsent-`date --utc +%Y`-`date --utc +%V`.txt"
 RECV_FILE="$DATA_DIR/mailrecv-`date --utc +%Y`-`date --utc +%V`.txt"
@@ -12,6 +16,13 @@ MEM_FILE="$DATA_DIR/mem-`date --utc +%Y`-`date --utc +%V`.txt"
 # Collect "uptime" stats: 1m 5m 15m avrg load.
 ###
 echo "`date +%s` `uptime | grep -ohe 'load average[s:][: ].*' | cut -d' ' -f3,4,5 | sed -e 's/, / /g' | sed -e 's/,/./g'`" >> $DATA_FILE
+
+###
+# Collect "mpstat" stats: 
+###
+echo "`date +%s` `mpstat | tail -n1 | cut -c17-`" >> $MPSTAT_ALL_FILE
+echo "`date +%s` `mpstat -P 0 | tail -n1 | cut -c17-`" >> $MPSTAT_P0_FILE
+echo "`date +%s` `mpstat -P 1 | tail -n1 | cut -c17-`" >> $MPSTAT_P1_FILE
 
 ###
 # Collect "mailq" stats: Number of items in the mailq.
