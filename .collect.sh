@@ -20,9 +20,9 @@ echo "`date +%s` `uptime | grep -ohe 'load average[s:][: ].*' | cut -d' ' -f3,4,
 ###
 # Collect "mpstat" stats: 
 ###
-echo "`date +%s` `mpstat | tail -n1 | cut -c17-`" >> $MPSTAT_ALL_FILE
-echo "`date +%s` `mpstat -P 0 | tail -n1 | cut -c17-`" >> $MPSTAT_P0_FILE
-echo "`date +%s` `mpstat -P 1 | tail -n1 | cut -c17-`" >> $MPSTAT_P1_FILE
+echo "`date +%s` `mpstat 1 1 | tail -n1 | cut -c17-`" >> $MPSTAT_ALL_FILE
+echo "`date +%s` `mpstat -P 0 1 1 | tail -n1 | cut -c17-`" >> $MPSTAT_P0_FILE
+echo "`date +%s` `mpstat -P 1 1 1 | tail -n1 | cut -c17-`" >> $MPSTAT_P1_FILE
 
 ###
 # Collect "mailq" stats: Number of items in the mailq.
