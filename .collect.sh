@@ -3,14 +3,14 @@
 SCRIPT_DIR=$( cd $(dirname $0) ; pwd -P )
 DATA_DIR="$SCRIPT_DIR/data"
 
-DATA_FILE="$DATA_DIR/`date --utc +%Y`-`date --utc +%V`.txt"
-MPSTAT_ALL_FILE="$DATA_DIR/mpstat-all-`date --utc +%Y`-`date --utc +%V`.txt"
-MPSTAT_P0_FILE="$DATA_DIR/mpstat-p0-`date --utc +%Y`-`date --utc +%V`.txt"
-MPSTAT_P1_FILE="$DATA_DIR/mpstat-p1-`date --utc +%Y`-`date --utc +%V`.txt"
-MAILQ_FILE="$DATA_DIR/mailq-`date --utc +%Y`-`date --utc +%V`.txt"
-SENT_FILE="$DATA_DIR/mailsent-`date --utc +%Y`-`date --utc +%V`.txt"
-RECV_FILE="$DATA_DIR/mailrecv-`date --utc +%Y`-`date --utc +%V`.txt"
-MEM_FILE="$DATA_DIR/mem-`date --utc +%Y`-`date --utc +%V`.txt"
+DATA_FILE="$DATA_DIR/`date --utc +%G`-`date --utc +%V`.txt"
+MPSTAT_ALL_FILE="$DATA_DIR/mpstat-all-`date --utc +%G`-`date --utc +%V`.txt"
+MPSTAT_P0_FILE="$DATA_DIR/mpstat-p0-`date --utc +%G`-`date --utc +%V`.txt"
+MPSTAT_P1_FILE="$DATA_DIR/mpstat-p1-`date --utc +%G`-`date --utc +%V`.txt"
+MAILQ_FILE="$DATA_DIR/mailq-`date --utc +%G`-`date --utc +%V`.txt"
+SENT_FILE="$DATA_DIR/mailsent-`date --utc +%G`-`date --utc +%V`.txt"
+RECV_FILE="$DATA_DIR/mailrecv-`date --utc +%G`-`date --utc +%V`.txt"
+MEM_FILE="$DATA_DIR/mem-`date --utc +%G`-`date --utc +%V`.txt"
 
 ###
 # Collect "uptime" stats: 1m 5m 15m avrg load.
