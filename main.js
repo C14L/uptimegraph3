@@ -1,13 +1,16 @@
-Date.prototype.getWeek = function() {
+Date.prototype.getISOWeek = function() {
   return moment(this).isoWeek();
+}
+Date.prototype.getISOWeekYear = function() {
+  return moment(this).isoWeekYear();
 }
 
 $(document).ready(function(){
-  var startYear = 2016, 
+  var startYear = 2016,
       startWeek = 1;
   var now = new Date();
-  var week = now.getWeek();
-  var year = now.getFullYear();
+  var week = now.getISOWeek();
+  var year = now.getISOWeekYear();
   var period = year + '-' + ('0' + week).slice(-2);
   // selected week/year. TODO: use to set vals as URL #hash
   var selWeek = week; // for now, use today's values.
@@ -16,7 +19,7 @@ $(document).ready(function(){
   oWeekSelect.html('');
 
   for( y = startYear; y <= year; y++ ) {
-    for( w = startWeek; ( y < year || w <= week ); w++ ) {
+    for( w = startWeek; ( ( y < year && w <= 52 ) || w <= week ); w++ ) {
       var sel = ( selYear == y && selWeek == w )?' selected="selected" ':'';
       var val = y+'-'+('0' + w).slice(-2);
       var s = '<option '+sel+' value="'+val+'">'+y+', W'+w+'</option>';
